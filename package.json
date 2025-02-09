@@ -1,0 +1,31 @@
+{
+  "name": "@indietabletop/tooling",
+  "version": "1.0.0",
+  "description": "A collection of configs and scripts used at Indie Tabletop Club",
+  "private": false,
+  "type": "module",
+  "scripts": {
+    "release": "npm run build && np",
+    "build": "tsc"
+  },
+  "exports": {
+    "./*": "./dist/*.js"
+  },
+  "files": [
+    "/dist"
+  ],
+  "author": "Artur Müller",
+  "repository": "github:indietabletop/tooling",
+  "license": "MIT",
+  "dependencies": {
+    "@vanilla-extract/vite-plugin": "^5.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.1.0"
+  },
+  "peerDependencies": {
+    "vite": "^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
