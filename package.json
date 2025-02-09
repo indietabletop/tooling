@@ -1,6 +1,6 @@
 {
   "name": "@indietabletop/tooling",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A collection of configs and scripts used at Indie Tabletop Club",
   "private": false,
   "type": "module",
