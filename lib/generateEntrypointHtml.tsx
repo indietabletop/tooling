@@ -54,6 +54,11 @@ function SocialTags(props: {
   );
 }
 
+/**
+ * Adds reference to source files, Vite client, and fast refresh for React.
+ *
+ * @see https://vite.dev/guide/backend-integration.html
+ */
 function DevMode(props: { path: string }) {
   return (
     <>
@@ -66,6 +71,10 @@ function DevMode(props: { path: string }) {
   );
 }
 
+/**
+ * Uses Vite's manifest chunk to reference production files with hashed
+ * filenames.
+ */
 function ProdEntrypoint(props: { manifestChunk: ManifestChunk }) {
   const { manifestChunk } = props;
 
@@ -79,15 +88,74 @@ function ProdEntrypoint(props: { manifestChunk: ManifestChunk }) {
   );
 }
 
+/**
+ * Generates app entrypoint.
+ *
+ * Can use used for both dev and prod (see entrypoint), set custom social tags,
+ * add prefetched data, and more...
+ */
+
 export function generateEntrypointHtml(props: {
+  /**
+   * Sets document title, as well social sharing titles.
+   *
+   * Note that when entrypoint is set to `dev`, the document title will include
+   * a `[DEV]` marker before the actual supplied title.
+   */
   title: string;
+
+  /**
+   * Sets document description, as well as social sharing descriptions.
+   */
   description: string;
+
+  /**
+   * Path to a social sharing image. Will appear as a wide graphic on supported
+   * platforms.
+   */
   socialImage: string;
+
+  /**
+   * If supplied, sets initial body color. This is useful to set the 'mood' when
+   * the JS bundle is initially loading.
+   */
   bodyColor?: string;
+
+  /**
+   * If supplied, adds Fathom Analytics code, and configures it for PWA usage.
+   */
   fathomSiteId?: string;
+
+  /**
+   * If supplied, adds Adobe Fonts code (previously Typekit).
+   */
   typekitProjectId?: string;
+
+  /**
+   * Sets favicon href and type.
+   *
+   * Ideally, use 64x64 PNGs, with a circular cutout for the actual icon.
+   */
   favicon: { href: string; type: string };
+
+  /**
+   * Any data that might already be available on the server can be provided
+   * to the client throught this property.
+   *
+   * You should name-space any data provided. E.g. use `{ sharedArmy: data }`
+   * instead of just dumping the army data in.
+   *
+   * This makes it easier to differentiate what data was provided on the client.
+   */
   prefetched?: unknown;
+
+  /**
+   * The app's entrypoint.
+   *
+   * In dev mode, should be a reference to the development-time index file. In
+   * prod mode, the main chunk from Vite's manifest should be passed.
+   *
+   */
   entrypoint:
     | {
         type: "dev";
