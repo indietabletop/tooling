@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "release": "npm run build && np",
-    "test": "echo 'ok'",
+    "test": "vitest run",
     "build": "tsc"
   },
   "exports": {
