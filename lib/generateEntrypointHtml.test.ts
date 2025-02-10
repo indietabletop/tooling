@@ -6,7 +6,7 @@ test("Minimal Prod", async () => {
   const html = generateEntrypointHtml({
     title: "Test",
     description: "I am a test",
-    socialImage: "/image.png",
+    social: { image: "/image.png" },
     favicon: { href: "/favicon.png", type: "image/png" },
     entrypoint: {
       type: "prod",
@@ -55,7 +55,11 @@ test("Complete Prod", async () => {
   const html = generateEntrypointHtml({
     title: "Test",
     description: "I am a test",
-    socialImage: "/image.png",
+    social: {
+      title: "Social title override.",
+      description: "Social description override.",
+      image: "/image.png",
+    },
     favicon: { href: "/favicon.png", type: "image/png" },
     fathomSiteId: "fathom-XXX",
     typekitProjectId: "typekit-XXX",
@@ -84,12 +88,12 @@ test("Complete Prod", async () => {
         <link rel="manifest" href="/manifest.json" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Indie Tabletop Club" />
-        <meta property="og:title" content="Test" />
-        <meta property="og:description" content="I am a test" />
+        <meta property="og:title" content="Social title override." />
+        <meta property="og:description" content="Social description override." />
         <meta property="og:image" content="/image.png" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Test" />
-        <meta name="twitter:description" content="I am a test" />
+        <meta name="twitter:title" content="Social title override." />
+        <meta name="twitter:description" content="Social description override." />
         <meta name="twitter:image" content="/image.png" />
         <script
           src="https://cdn.usefathom.com/script.js"
@@ -121,7 +125,7 @@ test("Minimal Dev Mode", async () => {
   const html = generateEntrypointHtml({
     title: "Test",
     description: "I am a test",
-    socialImage: "/image.png",
+    social: { image: "/image.png" },
     entrypoint: { type: "dev", path: "/src/main.tsx" },
     favicon: { href: "/favicon.png", type: "image/png" },
   });

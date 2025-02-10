@@ -110,10 +110,25 @@ export function generateEntrypointHtml(props: {
   description: string;
 
   /**
-   * Path to a social sharing image. Will appear as a wide graphic on supported
-   * platforms.
+   * Config to be used for social sharing.
    */
-  socialImage: string;
+  social: {
+    /**
+     * Social sharing title. Defaults to root title.
+     */
+    title?: string;
+
+    /**
+     * Social sharing description. Defaults to root description.
+     */
+    description?: string;
+
+    /**
+     * Path to a social sharing image. Will appear as a wide graphic on supported
+     * platforms.
+     */
+    image: string;
+  };
 
   /**
    * If supplied, sets initial body color. This is useful to set the 'mood' when
@@ -168,6 +183,11 @@ export function generateEntrypointHtml(props: {
 }) {
   const isDevMode = props.entrypoint.type === "dev";
   const title = isDevMode ? `[DEV] ${props.title}` : props.title;
+  const social = {
+    title: props.title,
+    description: props.description,
+    ...props.social,
+  };
 
   const html = renderToString(
     <html lang="en">
@@ -210,11 +230,7 @@ export function generateEntrypointHtml(props: {
         )}
 
         {/* Social Sharing */}
-        <SocialTags
-          title={props.title}
-          description={props.description}
-          image={props.socialImage}
-        />
+        <SocialTags {...social} />
 
         {/* Production Entrypoint */}
         {props.entrypoint.type === "prod" && (
