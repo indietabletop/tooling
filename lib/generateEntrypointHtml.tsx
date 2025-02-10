@@ -98,6 +98,9 @@ export function generateEntrypointHtml(props: {
         manifestChunk: ManifestChunk;
       };
 }) {
+  const isDevMode = props.entrypoint.type === "dev";
+  const title = isDevMode ? `[DEV] ${props.title}` : props.title;
+
   const html = renderToString(
     <html lang="en">
       <head>
@@ -109,7 +112,7 @@ export function generateEntrypointHtml(props: {
         />
 
         {/* General */}
-        <title>{props.title}</title>
+        <title>{title}</title>
         <meta name="description" content={props.description} />
 
         {props.favicon && <link rel="icon" {...props.favicon} />}
