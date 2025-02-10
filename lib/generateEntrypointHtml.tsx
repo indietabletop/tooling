@@ -79,7 +79,7 @@ function ProdEntrypoint(props: { manifestChunk: ManifestChunk }) {
   );
 }
 
-export function generateHtml(props: {
+export function generateEntrypointHtml(props: {
   title: string;
   description: string;
   socialImage: string;

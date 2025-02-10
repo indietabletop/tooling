@@ -1,9 +1,9 @@
 import { format } from "prettier";
 import { expect, test } from "vitest";
-import { generateHtml } from "./generate.js";
+import { generateEntrypointHtml } from "./generateEntrypointHtml.js";
 
 test("Minimal Prod", async () => {
-  const html = generateHtml({
+  const html = generateEntrypointHtml({
     title: "Test",
     description: "I am a test",
     socialImage: "/image.png",
@@ -52,7 +52,7 @@ test("Minimal Prod", async () => {
 });
 
 test("Complete Prod", async () => {
-  const html = generateHtml({
+  const html = generateEntrypointHtml({
     title: "Test",
     description: "I am a test",
     socialImage: "/image.png",
@@ -118,7 +118,7 @@ test("Complete Prod", async () => {
 });
 
 test("Minimal Dev Mode", async () => {
-  const html = generateHtml({
+  const html = generateEntrypointHtml({
     title: "Test",
     description: "I am a test",
     socialImage: "/image.png",
