@@ -73,7 +73,7 @@ function ProdEntrypoint(props: { manifestChunk: ManifestChunk }) {
     <>
       <script type="module" src={`/${manifestChunk.file}`} />
       {manifestChunk.css?.map((file) => {
-        return <link rel="stylesheet" href={`/${file}`} />;
+        return <link key={file} rel="stylesheet" href={`/${file}`} />;
       })}
     </>
   );
