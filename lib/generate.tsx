@@ -1,13 +1,102 @@
 import { renderToString } from "react-dom/server";
+import type { ManifestChunk } from "vite";
+
+type SocialTag = {
+  key: string;
+  value: string;
+};
+
+function SocialTags(props: {
+  title: string;
+  description: string;
+  image: string;
+}) {
+  const entries = Object.entries(props).map(([key, value]) => {
+    return { key, value };
+  });
+
+  // OpenGraph meta tags -- used by most apps
+  const openGraph: SocialTag[] = [
+    { key: "type", value: "website" },
+    { key: "site_name", value: "Indie Tabletop Club" },
+    ...entries,
+  ];
+
+  // Twitter meta tags -- used by some apps
+  const twitterTags: SocialTag[] = [
+    // This tag MUST be defined for Discord to preview links nicely
+    { key: "card", value: "summary_large_image" },
+    ...entries,
+  ];
+
+  return (
+    <>
+      {openGraph.map((tag) => {
+        return (
+          <meta
+            key={tag.key + tag.value}
+            property={`og:${tag.key}`}
+            content={tag.value}
+          />
+        );
+      })}
+
+      {twitterTags.map((tag) => {
+        return (
+          <meta
+            key={tag.key + tag.value}
+            name={`twitter:${tag.key}`}
+            content={tag.value}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+function DevMode(props: { path: string }) {
+  return (
+    <>
+      <script type="module">
+        {`import RefreshRuntime from "/@react-refresh";RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$ = () => {};window.$RefreshSig$ = () => (type) => type;window.__vite_plugin_react_preamble_installed__ = true;`}
+      </script>
+      <script type="module" src="/@vite/client" />
+      <script type="module" src={props.path} />
+    </>
+  );
+}
+
+function ProdEntrypoint(props: { manifestChunk: ManifestChunk }) {
+  const { manifestChunk } = props;
+
+  return (
+    <>
+      <script type="module" src={`/${manifestChunk.file}`} />
+      {manifestChunk.css?.map((file) => {
+        return <link rel="stylesheet" href={`/${file}`} />;
+      })}
+    </>
+  );
+}
 
 export function generateHtml(props: {
   title: string;
   description: string;
+  socialImage: string;
   bodyColor?: string;
   fathomSiteId?: string;
   typekitProjectId?: string;
+  favicon: { href: string; type: string };
   prefetched?: unknown;
-  socialImage?: string;
+  entrypoint:
+    | {
+        type: "dev";
+        path: string;
+      }
+    | {
+        type: "prod";
+        manifestChunk: ManifestChunk;
+      };
 }) {
   const html = renderToString(
     <html lang="en">
@@ -22,7 +111,9 @@ export function generateHtml(props: {
         {/* General */}
         <title>{props.title}</title>
         <meta name="description" content={props.description} />
-        <link rel="icon" type="image/png" href="/favicon.png" />
+
+        {props.favicon && <link rel="icon" {...props.favicon} />}
+
         <link rel="manifest" href="/manifest.json" />
 
         {/* Analytics */}
@@ -48,10 +139,24 @@ export function generateHtml(props: {
         )}
 
         {/* Social Sharing */}
+        <SocialTags
+          title={props.title}
+          description={props.description}
+          image={props.socialImage}
+        />
+
+        {/* Production Entrypoint */}
+        {props.entrypoint.type === "prod" && (
+          <ProdEntrypoint manifestChunk={props.entrypoint.manifestChunk} />
+        )}
       </head>
 
       <body>
         <div id="root" />
+
+        {props.entrypoint.type === "dev" && (
+          <DevMode path={props.entrypoint.path} />
+        )}
 
         {!!props.prefetched && (
           <script>{`window.PREFETCHED = ${JSON.stringify(
