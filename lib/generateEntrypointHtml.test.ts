@@ -137,7 +137,7 @@ test("Minimal Dev Mode", async () => {
           name="viewport"
           content="width=device-width, initial-scale=1, interactive-widget=resizes-content, maximum-scale=1"
         />
-        <title>Test</title>
+        <title>[DEV] Test</title>
         <meta name="description" content="I am a test" />
         <link rel="icon" href="/favicon.png" type="image/png" />
         <link rel="manifest" href="/manifest.json" />
