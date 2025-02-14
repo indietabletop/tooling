@@ -2,7 +2,7 @@ import matter from "gray-matter";
 import { marked } from "marked";
 import markedFootnote from "marked-footnote";
 import { gfmHeadingId } from "marked-gfm-heading-id";
-import { basename } from "path/posix";
+import { basename } from "path";
 
 type File = {
   filename: string;
