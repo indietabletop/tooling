@@ -1,6 +1,7 @@
 import { vanillaExtractPlugin as vanilla } from "@vanilla-extract/vite-plugin";
 import react from "@vitejs/plugin-react";
 import type { ConfigEnv, PluginOption, UserConfig } from "vite";
+import { markdownDocsPlugin } from "./markdownDocsPlugin.js";
 
 export function defineNetlifyConfig(props: {
   /**
@@ -31,12 +32,21 @@ export function defineNetlifyConfig(props: {
   /**
    * Determines the input file when runnig `vite` (i.e. the dev server).
    */
-  serveInput?: string
+  serveInput?: string;
+
+  /**
+   * A directory with source markdown docs files.
+   *
+   * If supplied, markdown files in the supplied directory will be transformed
+   * into JSON files.
+   */
+  docsDir?: string;
 }) {
   const {
     additionalPlugins = [],
-    buildInput ="/index.html",
-    serveInput ="/index.html",
+    buildInput = "/index.html",
+    serveInput = "/index.html",
+    docsDir,
     resolveAlias,
   } = props;
 
@@ -48,7 +58,12 @@ export function defineNetlifyConfig(props: {
         COMMIT_SHORTCODE: JSON.stringify(process.env.COMMIT_REF?.slice(0, 7)),
       },
 
-      plugins: [react(), vanilla(), ...additionalPlugins],
+      plugins: [
+        react(),
+        vanilla(),
+        docsDir && markdownDocsPlugin({ contentDir: docsDir }),
+        ...additionalPlugins,
+      ],
 
       esbuild: {
         target: "es2022",
@@ -67,10 +82,7 @@ export function defineNetlifyConfig(props: {
         manifest: true,
 
         rollupOptions: {
-          input:
-             command === "build"
-              ? buildInput
-              : serveInput,
+          input: command === "build" ? buildInput : serveInput,
         },
       },
     };
