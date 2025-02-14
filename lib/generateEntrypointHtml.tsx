@@ -1,5 +1,9 @@
 import { renderToString } from "react-dom/server";
-import type { ManifestChunk } from "vite";
+
+type ManifestFile = {
+  file: string;
+  css?: string[];
+};
 
 type SocialTag = {
   key: string;
@@ -55,47 +59,23 @@ function SocialTags(props: {
 }
 
 /**
- * Adds reference to source files, Vite client, and fast refresh for React.
- *
- * @see https://vite.dev/guide/backend-integration.html
- */
-function DevMode(props: { path: string }) {
-  return (
-    <>
-      <script type="module">
-        {`import RefreshRuntime from "/@react-refresh";RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$ = () => {};window.$RefreshSig$ = () => (type) => type;window.__vite_plugin_react_preamble_installed__ = true;`}
-      </script>
-      <script type="module" src="/@vite/client" />
-      <script type="module" src={props.path} />
-    </>
-  );
-}
-
-/**
  * Uses Vite's manifest chunk to reference production files with hashed
  * filenames.
  */
-function ProdEntrypoint(props: { manifestChunk: ManifestChunk }) {
-  const { manifestChunk } = props;
+function Entrypoint(props: { file: ManifestFile }) {
+  const { file, css = [] } = props.file;
 
   return (
     <>
-      <script type="module" src={`/${manifestChunk.file}`} />
-      {manifestChunk.css?.map((file) => {
+      <script type="module" src={`/${file}`} />
+      {css.map((file) => {
         return <link key={file} rel="stylesheet" href={`/${file}`} />;
       })}
     </>
   );
 }
 
-/**
- * Generates app entrypoint.
- *
- * Can use used for both dev and prod (see entrypoint), set custom social tags,
- * add prefetched data, and more...
- */
-
-export function generateEntrypointHtml(props: {
+export type EntrypointOptions = {
   /**
    * Sets document title, as well social sharing titles.
    *
@@ -103,12 +83,10 @@ export function generateEntrypointHtml(props: {
    * a `[DEV]` marker before the actual supplied title.
    */
   title: string;
-
   /**
    * Sets document description, as well as social sharing descriptions.
    */
   description: string;
-
   /**
    * Config to be used for social sharing.
    */
@@ -117,42 +95,38 @@ export function generateEntrypointHtml(props: {
      * Social sharing title. Defaults to root title.
      */
     title?: string;
-
     /**
      * Social sharing description. Defaults to root description.
      */
     description?: string;
-
     /**
      * Path to a social sharing image. Will appear as a wide graphic on supported
      * platforms.
      */
     image: string;
   };
-
   /**
    * If supplied, sets initial body color. This is useful to set the 'mood' when
    * the JS bundle is initially loading.
    */
   bodyColor?: string;
-
   /**
    * If supplied, adds Fathom Analytics code, and configures it for PWA usage.
    */
   fathomSiteId?: string;
-
   /**
    * If supplied, adds Adobe Fonts code (previously Typekit).
    */
   typekitProjectId?: string;
-
   /**
    * Sets favicon href and type.
    *
    * Ideally, use 64x64 PNGs, with a circular cutout for the actual icon.
    */
-  favicon: { href: string; type: string };
-
+  favicon: {
+    href: string;
+    type: string;
+  };
   /**
    * Any data that might already be available on the server can be provided
    * to the client throught this property.
@@ -163,7 +137,6 @@ export function generateEntrypointHtml(props: {
    * This makes it easier to differentiate what data was provided on the client.
    */
   prefetched?: unknown;
-
   /**
    * The app's entrypoint.
    *
@@ -171,22 +144,23 @@ export function generateEntrypointHtml(props: {
    * prod mode, the main chunk from Vite's manifest should be passed.
    *
    */
-  entrypoint:
-    | {
-        type: "dev";
-        path: string;
-      }
-    | {
-        type: "prod";
-        manifestChunk: ManifestChunk;
-      };
-}) {
-  const isDevMode = props.entrypoint.type === "dev";
-  const title = isDevMode ? `[DEV] ${props.title}` : props.title;
+  file: ManifestFile;
+
+  dev: boolean;
+};
+
+/**
+ * Generates app entrypoint.
+ *
+ * Can use used for both dev and prod (see entrypoint), set custom social tags,
+ * add prefetched data, and more...
+ */
+export function generateEntrypointHtml(opts: EntrypointOptions) {
+  const title = opts.dev ? `[DEV] ${opts.title}` : opts.title;
   const social = {
-    title: props.title,
-    description: props.description,
-    ...props.social,
+    title: opts.title,
+    description: opts.description,
+    ...opts.social,
   };
 
   const html = renderToString(
@@ -201,53 +175,51 @@ export function generateEntrypointHtml(props: {
 
         {/* General */}
         <title>{title}</title>
-        <meta name="description" content={props.description} />
+        <meta name="description" content={opts.description} />
 
-        {props.favicon && <link rel="icon" {...props.favicon} />}
+        {opts.favicon && <link rel="icon" {...opts.favicon} />}
 
         <link rel="manifest" href="/manifest.json" />
 
         {/* Analytics */}
-        {props.fathomSiteId && (
+        {opts.fathomSiteId && (
           <script
             src="https://cdn.usefathom.com/script.js"
-            data-site={props.fathomSiteId}
+            data-site={opts.fathomSiteId}
             data-spa="auto"
             defer
           />
         )}
 
         {/* Fonts & Styles */}
-        {props.typekitProjectId && (
+        {opts.typekitProjectId && (
           <link
             rel="stylesheet"
-            href={`https://use.typekit.net/${props.typekitProjectId}.css`}
+            href={`https://use.typekit.net/${opts.typekitProjectId}.css`}
           />
         )}
 
-        {props.bodyColor && (
-          <style>{`body { background-color: ${props.bodyColor}; }`}</style>
+        {opts.bodyColor && (
+          <style>{`body { background-color: ${opts.bodyColor}; }`}</style>
         )}
 
         {/* Social Sharing */}
         <SocialTags {...social} />
 
         {/* Production Entrypoint */}
-        {props.entrypoint.type === "prod" && (
-          <ProdEntrypoint manifestChunk={props.entrypoint.manifestChunk} />
-        )}
+        {!opts.dev && <Entrypoint file={opts.file} />}
       </head>
 
       <body>
         <div id="root" />
 
-        {props.entrypoint.type === "dev" && (
-          <DevMode path={props.entrypoint.path} />
-        )}
+        {/* Dev Entrypoint */}
+        {opts.dev && <Entrypoint file={opts.file} />}
 
-        {!!props.prefetched && (
+        {/* Prefetched Data */}
+        {!!opts.prefetched && (
           <script>{`window.PREFETCHED = ${JSON.stringify(
-            props.prefetched,
+            opts.prefetched,
           )}`}</script>
         )}
       </body>

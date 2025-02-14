@@ -1,6 +1,7 @@
 import { vanillaExtractPlugin as vanilla } from "@vanilla-extract/vite-plugin";
 import react from "@vitejs/plugin-react";
-import type { ConfigEnv, PluginOption, UserConfig } from "vite";
+import type { PluginOption, UserConfig } from "vite";
+import { entrypointPlugin, type RenderFn } from "./entrypointPlugin.js";
 import { markdownDocsPlugin } from "./markdownDocsPlugin.js";
 
 export function defineNetlifyConfig(props: {
@@ -25,66 +26,54 @@ export function defineNetlifyConfig(props: {
   resolveAlias?: string;
 
   /**
-   * Determines the input file when runnig `vite build`.
-   */
-  buildInput?: string;
-
-  /**
-   * Determines the input file when runnig `vite` (i.e. the dev server).
-   */
-  serveInput?: string;
-
-  /**
    * A directory with source markdown docs files.
    *
    * If supplied, markdown files in the supplied directory will be transformed
    * into JSON files.
    */
   docsDir?: string;
-}) {
-  const {
-    additionalPlugins = [],
-    buildInput = "/index.html",
-    serveInput = "/index.html",
-    docsDir,
-    resolveAlias,
-  } = props;
 
-  return function configureVite({ command }: ConfigEnv): UserConfig {
-    return {
-      define: {
-        // These vars are supplied by Netlify
-        BRANCH: JSON.stringify(process.env.BRANCH),
-        COMMIT_SHORTCODE: JSON.stringify(process.env.COMMIT_REF?.slice(0, 7)),
-      },
+  entrypoint?: {
+    /**
+     * Determines the input file of the application. Used by entrypoint plugin
+     * to generate custom HTML file.
+     */
+    inputFile: string;
 
-      plugins: [
-        react(),
-        vanilla(),
-        docsDir && markdownDocsPlugin({ contentDir: docsDir }),
-        ...additionalPlugins,
-      ],
+    /**
+     * Functions that should return a string representing the HTML entrypoint.
+     */
+    render: RenderFn;
+  };
+  renderEntrypoint?: RenderFn;
+}): UserConfig {
+  const { additionalPlugins = [], docsDir, entrypoint, resolveAlias } = props;
 
-      esbuild: {
-        target: "es2022",
-      },
+  return {
+    define: {
+      // These vars are supplied by Netlify
+      BRANCH: JSON.stringify(process.env.BRANCH),
+      COMMIT_SHORTCODE: JSON.stringify(process.env.COMMIT_REF?.slice(0, 7)),
+    },
 
-      server: {
-        port: props.port,
-      },
+    plugins: [
+      entrypoint && entrypointPlugin(entrypoint),
+      react(),
+      vanilla(),
+      docsDir && markdownDocsPlugin({ contentDir: docsDir }),
+      ...additionalPlugins,
+    ],
 
-      resolve: {
-        alias: resolveAlias ? { "@": resolveAlias } : undefined,
-      },
+    server: {
+      port: props.port,
+    },
 
-      build: {
-        sourcemap: true,
-        manifest: true,
+    resolve: {
+      alias: resolveAlias ? { "@": resolveAlias } : undefined,
+    },
 
-        rollupOptions: {
-          input: command === "build" ? buildInput : serveInput,
-        },
-      },
-    };
+    build: {
+      sourcemap: true,
+    },
   };
 }

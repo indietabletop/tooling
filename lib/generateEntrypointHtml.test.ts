@@ -8,10 +8,8 @@ test("Minimal Prod", async () => {
     description: "I am a test",
     social: { image: "/image.png" },
     favicon: { href: "/favicon.png", type: "image/png" },
-    entrypoint: {
-      type: "prod",
-      manifestChunk: { file: "index-hash.js", css: ["index.css"] },
-    },
+    file: { file: "index-hash.js", css: ["index.css"] },
+    dev: false,
   });
 
   const prettyHtml = await format(html, { parser: "html" });
@@ -65,10 +63,8 @@ test("Complete Prod", async () => {
     typekitProjectId: "typekit-XXX",
     bodyColor: "#ffffff",
     prefetched: { data: "anything..." },
-    entrypoint: {
-      type: "prod",
-      manifestChunk: { file: "index-hash.js", css: ["index.css"] },
-    },
+    file: { file: "index-hash.js", css: ["index.css"] },
+    dev: false,
   });
 
   const prettyHtml = await format(html, { parser: "html" });
@@ -126,8 +122,9 @@ test("Minimal Dev Mode", async () => {
     title: "Test",
     description: "I am a test",
     social: { image: "/image.png" },
-    entrypoint: { type: "dev", path: "/src/main.tsx" },
     favicon: { href: "/favicon.png", type: "image/png" },
+    file: { file: "index-hash.js" },
+    dev: true,
   });
 
   const prettyHtml = await format(html, { parser: "html" });
@@ -157,15 +154,7 @@ test("Minimal Dev Mode", async () => {
       </head>
       <body>
         <div id="root"></div>
-        <script type="module">
-          import RefreshRuntime from "/@react-refresh";
-          RefreshRuntime.injectIntoGlobalHook(window);
-          window.$RefreshReg$ = () => {};
-          window.$RefreshSig$ = () => (type) => type;
-          window.__vite_plugin_react_preamble_installed__ = true;
-        </script>
-        <script type="module" src="/@vite/client"></script>
-        <script type="module" src="/src/main.tsx"></script>
+        <script type="module" src="/index-hash.js"></script>
       </body>
     </html>
     "
