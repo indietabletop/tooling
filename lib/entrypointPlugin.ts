@@ -27,10 +27,9 @@ export function entrypointPlugin(options: {
     name: "vite-entrypoint-plugin",
 
     transformIndexHtml: {
-      order: "pre",
-      handler(_, bar) {
-        if (bar.bundle) {
-          const manifest = toManifest(bar.bundle);
+      handler(_, context) {
+        if (context.bundle) {
+          const manifest = toManifest(context.bundle);
           return options.render({ dev: false, file: manifest.index });
         }
 

@@ -59,6 +59,22 @@ function SocialTags(props: {
 }
 
 /**
+ * Adds reference to Vite client and React fast refresh preamble.
+ *
+ * @see https://vite.dev/guide/backend-integration.html
+ */
+function DevMode() {
+  return (
+    <>
+      <script type="module">
+        {`import RefreshRuntime from "/@react-refresh";RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$ = () => {};window.$RefreshSig$ = () => (type) => type;window.__vite_plugin_react_preamble_installed__ = true;`}
+      </script>
+      <script type="module" src="/@vite/client" />
+    </>
+  );
+}
+
+/**
  * Uses Vite's manifest chunk to reference production files with hashed
  * filenames.
  */
@@ -214,7 +230,12 @@ export function generateEntrypointHtml(opts: EntrypointOptions) {
         <div id="root" />
 
         {/* Dev Entrypoint */}
-        {opts.dev && <Entrypoint file={opts.file} />}
+        {opts.dev && (
+          <>
+            <DevMode />
+            <Entrypoint file={opts.file} />
+          </>
+        )}
 
         {/* Prefetched Data */}
         {!!opts.prefetched && (

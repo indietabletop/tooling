@@ -154,6 +154,14 @@ test("Minimal Dev Mode", async () => {
       </head>
       <body>
         <div id="root"></div>
+        <script type="module">
+          import RefreshRuntime from "/@react-refresh";
+          RefreshRuntime.injectIntoGlobalHook(window);
+          window.$RefreshReg$ = () => {};
+          window.$RefreshSig$ = () => (type) => type;
+          window.__vite_plugin_react_preamble_installed__ = true;
+        </script>
+        <script type="module" src="/@vite/client"></script>
         <script type="module" src="/index-hash.js"></script>
       </body>
     </html>
