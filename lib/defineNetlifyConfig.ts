@@ -45,7 +45,6 @@ export function defineNetlifyConfig(props: {
      */
     render: RenderFn;
   };
-  renderEntrypoint?: RenderFn;
 }): UserConfig {
   const { additionalPlugins = [], docsDir, entrypoint, resolveAlias } = props;
 
