@@ -33,20 +33,23 @@ export function defineNetlifyConfig(props: {
    */
   docsDir?: string;
 
-  entrypoint?: {
-    /**
-     * Determines the input file of the application. Used by entrypoint plugin
-     * to generate custom HTML file.
-     */
-    inputFile: string;
+  /**
+   * Reference to the main app entrypoint
+   */
+  inputFile: string;
 
-    /**
-     * Functions that should return a string representing the HTML entrypoint.
-     */
-    render: RenderFn;
-  };
+  /**
+   * Functions that should return a string representing the HTML entrypoint.
+   */
+  renderEntrypoint: RenderFn;
 }): UserConfig {
-  const { additionalPlugins = [], docsDir, entrypoint, resolveAlias } = props;
+  const {
+    additionalPlugins = [],
+    docsDir,
+    inputFile,
+    renderEntrypoint: render,
+    resolveAlias,
+  } = props;
 
   return {
     define: {
@@ -56,7 +59,7 @@ export function defineNetlifyConfig(props: {
     },
 
     plugins: [
-      entrypoint && entrypointPlugin(entrypoint),
+      entrypointPlugin({ inputFile, render }),
       react(),
       vanilla(),
       docsDir && markdownDocsPlugin({ contentDir: docsDir }),
@@ -73,6 +76,7 @@ export function defineNetlifyConfig(props: {
 
     build: {
       sourcemap: true,
+      rollupOptions: { input: inputFile },
     },
   };
 }

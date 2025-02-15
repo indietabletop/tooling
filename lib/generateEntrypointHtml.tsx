@@ -1,9 +1,5 @@
 import { renderToString } from "react-dom/server";
-
-type ManifestFile = {
-  file: string;
-  css?: string[];
-};
+import type { ManifestFile } from "./entrypointPlugin.js";
 
 type SocialTag = {
   key: string;
@@ -78,14 +74,25 @@ function DevMode() {
  * Uses Vite's manifest chunk to reference production files with hashed
  * filenames.
  */
-function Entrypoint(props: { file: ManifestFile }) {
-  const { file, css = [] } = props.file;
-
+function Entrypoint(props: { files: ManifestFile[] }) {
   return (
     <>
-      <script type="module" src={`/${file}`} />
-      {css.map((file) => {
-        return <link key={file} rel="stylesheet" href={`/${file}`} />;
+      {props.files.map(({ fileName, type }) => {
+        switch (type) {
+          case "js": {
+            return <script key={fileName} type="module" src={`/${fileName}`} />;
+          }
+
+          case "css": {
+            return (
+              <link key={fileName} rel="stylesheet" href={`/${fileName}`} />
+            );
+          }
+
+          default: {
+            return null;
+          }
+        }
       })}
     </>
   );
@@ -160,7 +167,7 @@ export type EntrypointOptions = {
    * prod mode, the main chunk from Vite's manifest should be passed.
    *
    */
-  file: ManifestFile;
+  files: ManifestFile[];
 
   dev: boolean;
 };
@@ -223,7 +230,7 @@ export function generateEntrypointHtml(opts: EntrypointOptions) {
         <SocialTags {...social} />
 
         {/* Production Entrypoint */}
-        {!opts.dev && <Entrypoint file={opts.file} />}
+        {!opts.dev && <Entrypoint files={opts.files} />}
       </head>
 
       <body>
@@ -233,7 +240,7 @@ export function generateEntrypointHtml(opts: EntrypointOptions) {
         {opts.dev && (
           <>
             <DevMode />
-            <Entrypoint file={opts.file} />
+            <Entrypoint files={opts.files} />
           </>
         )}
 

@@ -2,22 +2,32 @@ import type { OutputBundle } from "rollup";
 import type { Plugin } from "vite";
 
 export type ManifestFile = {
-  file: string;
-  css: string[];
+  fileName: string;
+  type: "js" | "css";
 };
 
 function toManifest(bundle: OutputBundle) {
-  return Object.fromEntries(
-    Object.values(bundle)
-      .filter((chunk) => chunk.type === "chunk")
-      .map((chunk) => {
-        const css = Array.from(chunk.viteMetadata?.importedCss ?? []);
-        return [chunk.name, { file: chunk.fileName, css }];
-      }),
-  );
+  const entrypoint = Object.values(bundle)
+    .filter((chunk) => chunk.type === "chunk")
+    .find((chunk) => chunk.isEntry);
+
+  if (!entrypoint) {
+    throw new Error(`No entrypoint found.`);
+  }
+
+  const css = Array.from(entrypoint.viteMetadata?.importedCss ?? []);
+  return [
+    { fileName: entrypoint.fileName, type: "js" },
+    ...css.map((cssFileName) => {
+      return { fileName: cssFileName, type: "css" };
+    }),
+  ];
 }
 
-export type RenderFn = (props: { dev: boolean; file: ManifestFile }) => string;
+export type RenderFn = (props: {
+  dev: boolean;
+  files: ManifestFile[];
+}) => string;
 
 export function entrypointPlugin(options: {
   inputFile: string;
@@ -26,16 +36,18 @@ export function entrypointPlugin(options: {
   return {
     name: "vite-entrypoint-plugin",
 
-    transformIndexHtml: {
-      handler(_, context) {
-        if (context.bundle) {
-          const manifest = toManifest(context.bundle);
-          return options.render({ dev: false, file: manifest.index });
-        }
-
-        const devChunk = { file: options.inputFile, css: [] };
-        return options.render({ dev: true, file: devChunk });
-      },
+    configureServer(server) {
+      // This will be added to the end of the middleware chain
+      return () => {
+        server.middlewares.use((_req, res) => {
+          const entrypoint: ManifestFile = {
+            fileName: options.inputFile,
+            type: "js",
+          };
+          res.setHeader("Content-Type", "text/html");
+          res.end(options.render({ dev: true, files: [entrypoint] }));
+        });
+      };
     },
 
     generateBundle(_, bundle) {
@@ -44,7 +56,7 @@ export function entrypointPlugin(options: {
       this.emitFile({
         fileName: "entrypoint.json",
         type: "asset",
-        source: JSON.stringify(manifest.index),
+        source: JSON.stringify(manifest),
       });
     },
   };

@@ -8,7 +8,10 @@ test("Minimal Prod", async () => {
     description: "I am a test",
     social: { image: "/image.png" },
     favicon: { href: "/favicon.png", type: "image/png" },
-    file: { file: "index-hash.js", css: ["index.css"] },
+    files: [
+      { fileName: "index-hash.js", type: "js" },
+      { fileName: "index.css", type: "css" },
+    ],
     dev: false,
   });
 
@@ -63,7 +66,10 @@ test("Complete Prod", async () => {
     typekitProjectId: "typekit-XXX",
     bodyColor: "#ffffff",
     prefetched: { data: "anything..." },
-    file: { file: "index-hash.js", css: ["index.css"] },
+    files: [
+      { fileName: "index-hash.js", type: "js" },
+      { fileName: "index.css", type: "css" },
+    ],
     dev: false,
   });
 
@@ -123,7 +129,7 @@ test("Minimal Dev Mode", async () => {
     description: "I am a test",
     social: { image: "/image.png" },
     favicon: { href: "/favicon.png", type: "image/png" },
-    file: { file: "index-hash.js" },
+    files: [{ fileName: "index-hash.js", type: "js" }],
     dev: true,
   });
 
