@@ -79,11 +79,11 @@ function Entrypoint(props: { files: ManifestFile[] }) {
     <>
       {props.files.map(({ fileName, type }) => {
         switch (type) {
-          case "js": {
+          case "script": {
             return <script key={fileName} type="module" src={`/${fileName}`} />;
           }
 
-          case "css": {
+          case "stylesheet": {
             return (
               <link key={fileName} rel="stylesheet" href={`/${fileName}`} />
             );

@@ -9,8 +9,8 @@ test("Minimal Prod", async () => {
     social: { image: "/image.png" },
     favicon: { href: "/favicon.png", type: "image/png" },
     files: [
-      { fileName: "index-hash.js", type: "js" },
-      { fileName: "index.css", type: "css" },
+      { fileName: "index-hash.js", type: "script" },
+      { fileName: "index.css", type: "stylesheet" },
     ],
     dev: false,
   });
@@ -67,8 +67,8 @@ test("Complete Prod", async () => {
     bodyColor: "#ffffff",
     prefetched: { data: "anything..." },
     files: [
-      { fileName: "index-hash.js", type: "js" },
-      { fileName: "index.css", type: "css" },
+      { fileName: "index-hash.js", type: "script" },
+      { fileName: "index.css", type: "stylesheet" },
     ],
     dev: false,
   });
@@ -129,7 +129,7 @@ test("Minimal Dev Mode", async () => {
     description: "I am a test",
     social: { image: "/image.png" },
     favicon: { href: "/favicon.png", type: "image/png" },
-    files: [{ fileName: "index-hash.js", type: "js" }],
+    files: [{ fileName: "index.tsx", type: "script" }],
     dev: true,
   });
 
@@ -168,7 +168,7 @@ test("Minimal Dev Mode", async () => {
           window.__vite_plugin_react_preamble_installed__ = true;
         </script>
         <script type="module" src="/@vite/client"></script>
-        <script type="module" src="/index-hash.js"></script>
+        <script type="module" src="/index.tsx"></script>
       </body>
     </html>
     "

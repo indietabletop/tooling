@@ -3,10 +3,10 @@ import type { Plugin } from "vite";
 
 export type ManifestFile = {
   fileName: string;
-  type: "js" | "css";
+  type: "script" | "stylesheet";
 };
 
-function toManifest(bundle: OutputBundle) {
+function toManifest(bundle: OutputBundle): ManifestFile[] {
   const entrypoint = Object.values(bundle)
     .filter((chunk) => chunk.type === "chunk")
     .find((chunk) => chunk.isEntry);
@@ -17,9 +17,9 @@ function toManifest(bundle: OutputBundle) {
 
   const css = Array.from(entrypoint.viteMetadata?.importedCss ?? []);
   return [
-    { fileName: entrypoint.fileName, type: "js" },
-    ...css.map((cssFileName) => {
-      return { fileName: cssFileName, type: "css" };
+    { fileName: entrypoint.fileName, type: "script" },
+    ...css.map((cssFileName): ManifestFile => {
+      return { fileName: cssFileName, type: "stylesheet" };
     }),
   ];
 }
@@ -42,7 +42,7 @@ export function entrypointPlugin(options: {
         server.middlewares.use((_req, res) => {
           const entrypoint: ManifestFile = {
             fileName: options.inputFile,
-            type: "js",
+            type: "script",
           };
           res.setHeader("Content-Type", "text/html");
           res.end(options.render({ dev: true, files: [entrypoint] }));
