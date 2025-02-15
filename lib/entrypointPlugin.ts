@@ -6,7 +6,7 @@ export type ManifestFile = {
   type: "script" | "stylesheet";
 };
 
-function toManifest(bundle: OutputBundle): ManifestFile[] {
+function toManifestFiles(bundle: OutputBundle): ManifestFile[] {
   const entrypoint = Object.values(bundle)
     .filter((chunk) => chunk.type === "chunk")
     .find((chunk) => chunk.isEntry);
@@ -51,12 +51,18 @@ export function entrypointPlugin(options: {
     },
 
     generateBundle(_, bundle) {
-      const manifest = toManifest(bundle);
+      const manifestFiles = toManifestFiles(bundle);
+
+      this.emitFile({
+        fileName: "index.html",
+        type: "asset",
+        source: options.render({ dev: false, files: manifestFiles }),
+      });
 
       this.emitFile({
         fileName: "entrypoint.json",
         type: "asset",
-        source: JSON.stringify(manifest),
+        source: JSON.stringify(manifestFiles),
       });
     },
   };
