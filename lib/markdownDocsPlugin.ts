@@ -9,7 +9,7 @@ export function markdownDocsPlugin(options: { contentDir: string }): Plugin {
   const { contentDir } = options;
 
   async function generateDirectoryIndex(dirPath: string) {
-    const files = await glob("**/*.md", {
+    const files = await glob(["**/*.md", "!**/*.draft.md"], {
       cwd: dirPath,
       absolute: true,
     });
