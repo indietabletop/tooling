@@ -11,28 +11,42 @@ type File = {
 
 marked.use(gfmHeadingId(), markedFootnote());
 
-function filenameToId(filename: string): string {
+function filenameToSlug(filename: string): string {
   return basename(filename, ".md");
 }
 
 export async function transformFile(file: File) {
   const { content: md, data } = matter(file.content);
   const content = await marked.parse(md);
+  const slug = filenameToSlug(file.filename);
 
   return {
-    id: filenameToId(file.filename),
+    id: slug,
     data,
     content,
   };
 }
 
 export function filesToIndex(files: File[]) {
-  return files.map(({ filename, content }) => {
-    const { data: frontmatter } = matter(content);
+  return files
+    .map(({ filename, content }) => {
+      const { data: frontmatter } = matter(content);
+      const slug = filenameToSlug(filename);
 
-    return {
-      id: filenameToId(filename),
-      data: frontmatter,
-    };
-  });
+      return {
+        id: slug,
+        data: frontmatter,
+      };
+    })
+    .sort((left, right) => {
+      if (left.id > right.id) {
+        return -1;
+      }
+
+      if (right.id > left.id) {
+        return 1;
+      }
+
+      return 0;
+    });
 }
