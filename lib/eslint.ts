@@ -15,12 +15,37 @@ type SharedConfigOptions = {
 };
 
 /**
- * Sets up ESLint with shared ITC configuration:
+ * Sets up ESLint with shared ITC configuration.
  *
- * - Uses recommended JS rules
- * - Uses strict recommended TS rules
- * - Adds React, React Hooks, and React Refresh plugins
- * - Relaxes several overly agressive rules
+ * Example usage:
+ *
+ * ```js
+ * import { itcSharedConfigs } from "@indietabletop/tooling/eslint";
+ *
+ * export default [
+ *   // Set global ignores
+ *   { ignores: ["eslint.config.js", "dist", "public"] },
+ *
+ *   // Use based configs that are applied to all files that are subsequently
+ *   // matched by ESLint.
+ *   ...itcSharedConfigs({
+ *     parserOptions: {
+ *       project: ["./tsconfig.json", "./tsconfig.node.json" ],
+ *       tsconfigRootDir: import.meta.dirname,
+ *     },
+ *   }),
+ *
+ *   // Configure which files to match
+ *   {
+ *     files: ["**\/*.{ts,tsx}"],
+ *
+ *     // Rule overrides can go here
+ *     rules: {
+ *       "@typescript-eslint/no-deprecated": "error",
+ *     },
+ *   },
+ * ];
+ * ```
  */
 export function itcSharedConfigs({
   parserOptions,
