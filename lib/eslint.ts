@@ -91,6 +91,7 @@ export function itcSharedConfigs({
             ignoreRestSiblings: true,
           },
         ],
+        "@typescript-eslint/no-deprecated": "warn",
       },
     },
   ];
