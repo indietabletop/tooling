@@ -8,8 +8,6 @@ import ts, { type ConfigArray } from "typescript-eslint";
 type Config = ConfigArray[number];
 
 type SharedConfigOptions = {
-  files: string[];
-  rules?: Config["rules"];
   parserOptions: NonNullable<Config["languageOptions"]>["parserOptions"] & {
     project: string[];
     tsconfigRootDir: string;
@@ -25,17 +23,14 @@ type SharedConfigOptions = {
  * - Relaxes several overly agressive rules
  */
 export function itcSharedConfigs({
-  files,
-  rules,
   parserOptions,
 }: SharedConfigOptions): ConfigArray {
   return [
-    { ...js.configs.recommended, files },
+    js.configs.recommended,
 
-    ...ts.configs.strictTypeChecked.map((conf) => ({ ...conf, files })),
+    ...ts.configs.strictTypeChecked,
 
     {
-      files,
       languageOptions: {
         ecmaVersion: 2020,
         globals: globals.browser,
@@ -71,7 +66,6 @@ export function itcSharedConfigs({
             ignoreRestSiblings: true,
           },
         ],
-        ...rules,
       },
     },
   ];
