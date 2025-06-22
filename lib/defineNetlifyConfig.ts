@@ -52,6 +52,12 @@ export function defineNetlifyConfig(props: {
   } = props;
 
   return {
+    optimizeDeps: {
+      // ITC Appkit uses css.ts files from Vanilla Extract that must not be
+      // pre-bundled by Vite (their compilation doesn't work otherwise).
+      exclude: ["@indietabletop/appkit"],
+    },
+
     define: {
       // These vars are supplied by Netlify
       BRANCH: JSON.stringify(process.env.BRANCH),
