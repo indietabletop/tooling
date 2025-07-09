@@ -1,3 +1,4 @@
+import { vanillaExtractPlugin as vanillaEsbuild } from "@vanilla-extract/esbuild-plugin";
 import { vanillaExtractPlugin as vanilla } from "@vanilla-extract/vite-plugin";
 import react from "@vitejs/plugin-react";
 import type { PluginOption, UserConfig } from "vite";
@@ -53,9 +54,12 @@ export function defineNetlifyConfig(props: {
 
   return {
     optimizeDeps: {
-      // ITC Appkit uses css.ts files from Vanilla Extract that must not be
-      // pre-bundled by Vite (their compilation doesn't work otherwise).
-      exclude: ["@indietabletop/appkit"],
+      // Makes sure that .css.ts files can be used in development alongside
+      // Vite's optimizeDeps setting, which otherwise doesn't work. See:
+      // https://github.com/vanilla-extract-css/vanilla-extract/discussions/1051
+      esbuildOptions: {
+        plugins: [vanillaEsbuild({ runtime: true })],
+      },
     },
 
     define: {
