@@ -5,8 +5,9 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "release": "npm run build && np",
+    "release": "np",
     "test": "vitest run",
+    "prepare": "npm run build",
     "build": "tsc"
   },
   "exports": {
