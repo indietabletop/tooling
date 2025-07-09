@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "release",
+      "command": "npm run release",
+      "detail": "Releases a new version of the npm package.",
+      "group": "test"
+    }
+  ]
+}
